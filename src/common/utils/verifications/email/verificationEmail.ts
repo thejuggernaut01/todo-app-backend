@@ -7,7 +7,7 @@ import User from "../../../../models/user.model";
 
 const verificationEmail = async (email: string, res: Response) => {
   // generate verification token and save user to the database with isVerified set to false
-  crypto.randomBytes(32, async (err: Error, buffer: any) => {
+  crypto.randomBytes(32, async (err: Error, buffer: Buffer) => {
     if (err) {
       return res.status(400).json({
         status: "Error",

@@ -7,6 +7,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import authRouter from "./routes/auth.route";
+import taskRouter from "./routes/task.route";
 import { protect } from "./controllers/auth.controller";
 
 const app: Express = express();
@@ -33,6 +34,6 @@ app.get("/", (req, res) => {
 
 app.use("/auth", authRouter);
 
-// app.use("/app", protect, movieRouter);
+app.use("/app", protect, taskRouter);
 
 export default app;
