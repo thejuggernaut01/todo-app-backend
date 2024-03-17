@@ -14,7 +14,7 @@ The app should allows users to create, edit, and delete tasks.
 
 **Authentication:** JWT Authentication - Access & Refresh Token
 
-**Authentication:** Zod
+**Validation:** Zod
 
 ## Run Locally
 
