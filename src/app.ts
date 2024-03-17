@@ -14,16 +14,21 @@ const app: Express = express();
 
 app.use(
   cors({
+    origin: [
+      "https://ayoo-todo-app.vercel.app/",
+      "http://localhost:3000",
+      "http://localhost:3001",
+    ],
     credentials: true,
   })
 );
 
 // Parse JSON bodies
 app.use(express.json());
-// Parse URL-encoded bodies
-app.use(express.urlencoded({ extended: true }));
 // Cookie parser middleware for parsing cookies sent by the client
 app.use(cookieParser());
+// Parse URL-encoded bodies
+app.use(express.urlencoded({ extended: true }));
 // Compress responses
 app.use(compression());
 
