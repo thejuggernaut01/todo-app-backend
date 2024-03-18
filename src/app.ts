@@ -39,6 +39,6 @@ app.get("/", (req, res) => {
 
 app.use("/auth", authRouter);
 
-app.use("/app", taskRouter);
+app.use("/app", protect, taskRouter);
 
 export default app;

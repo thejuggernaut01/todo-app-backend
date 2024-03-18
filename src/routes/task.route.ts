@@ -7,7 +7,6 @@ import {
 } from "../controllers/task.controller";
 import validate from "../common/schemas/validate";
 import { addTaskSchema, updateTaskSchema } from "../common/schemas/taskSchema";
-import { protect } from "../controllers/auth.controller";
 
 const router = express.Router();
 
