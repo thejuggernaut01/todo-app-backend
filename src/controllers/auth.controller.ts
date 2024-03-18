@@ -198,7 +198,7 @@ export const login = async (req: Request, res: Response) => {
       secure: isProduction ? true : false,
       httpOnly: isProduction ? true : false,
       path: "/",
-      sameSite: isProduction ? "none" : "lax",
+      sameSite: "lax",
       maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
     });
 
