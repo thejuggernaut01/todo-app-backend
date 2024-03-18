@@ -335,6 +335,108 @@ export const logout = async (req: CustomRequest, res: Response) => {
   }
 };
 
+// export const protect = async (
+//   req: CustomRequest,
+//   res: Response,
+//   next: NextFunction
+// ): Promise<Response | void> => {
+//   const accessToken = req.cookies["access-token"];
+//   const refreshToken = req.cookies["refresh-token"];
+
+//   // check if refresh token doesn't exist
+//   if (!refreshToken) {
+//     return res.status(403).json({
+//       message: "Unauthorized - ",
+//     });
+//   }
+
+//   // check decoded access token against the database
+//   // to ensure that the associated user exists and
+//   // is authorized to access the protected resource.
+//   const handleDecoded = async (decoded: DecodedType) => {
+//     const user = await User.findOne({ _id: decoded._id })
+//       .select("+refreshToken")
+//       .lean();
+
+//     // if user doesn't exist
+//     if (!user) {
+//       return res.status(400).json({
+//         status: "Error",
+//         message: "Unauthorized",
+//       });
+//     }
+
+//     // if refresh token is invalid
+//     if (user.refreshToken !== refreshToken) {
+//       return res
+//         .status(400)
+//         .json({ status: "Error", message: "Unauthorized - Invalid token" });
+//     }
+
+//     // if user changed password
+
+//     const { refreshToken: _, ...rest } = user;
+
+//     return rest;
+//   };
+
+//   try {
+//     // verify access token
+//     const decoded = jwt.verify(accessToken, ACCESS_TOKEN_SECRET) as DecodedType;
+
+//     const currentUser = await handleDecoded(decoded);
+
+//     req.user = currentUser;
+//   } catch (error) {
+//     //  if error in verifying access token
+//     const castedError = error as Error;
+//     if (
+//       castedError.name === "JsonWebTokenError" ||
+//       (castedError.name === "TokenExpiredError" && refreshToken)
+//     ) {
+//       try {
+//         // verify refreshToken
+//         const decoded = jwt.verify(
+//           refreshToken,
+//           REFRESH_TOKEN_SECRET
+//         ) as DecodedType;
+
+//         const decodedUser = await handleDecoded(decoded);
+//         req.user = decodedUser;
+
+//         if (decodedUser && "_id" in decodedUser) {
+//           // create new access token
+//           const newAccessToken = jwt.sign(
+//             { _id: decodedUser._id },
+//             ACCESS_TOKEN_SECRET,
+//             {
+//               expiresIn: ACCESS_TOKEN_EXPIRES_IN,
+//             }
+//           );
+
+//           // check if in production mode
+//           const isProduction = process.env.NODE_ENV === "production";
+
+//           // store token (access & refresh)
+//           res.cookie("access-token", newAccessToken, {
+//             secure: isProduction ? true : false,
+//             httpOnly: isProduction ? true : false,
+//             path: "/",
+//             sameSite: isProduction ? "none" : "lax",
+//             maxAge: 15 * 60 * 1000, // 15 minutes
+//           });
+//         }
+//       } catch (error) {
+//         return res
+//           .status(400)
+//           .json({ status: "Error", message: "Unauthorized" });
+//       }
+//     }
+//   }
+
+//   next();
+// };
+
 export const protect = async (
   req: CustomRequest,
   res: Response,
@@ -343,10 +445,10 @@ export const protect = async (
   const accessToken = req.cookies["access-token"];
   const refreshToken = req.cookies["refresh-token"];
 
-  // check if refresh token doesn't exist
-  if (!refreshToken) {
-    return res.status(403).json({
-      message: "Unauthorized - ",
+  // check if access token doesn't exist
+  if (!accessToken) {
+    return res.status(401).json({
+      message: "Unauthorized - Access token is missing",
     });
   }
 
@@ -360,17 +462,18 @@ export const protect = async (
 
     // if user doesn't exist
     if (!user) {
-      return res.status(400).json({
+      return res.status(401).json({
         status: "Error",
-        message: "Unauthorized",
+        message: "Unauthorized - User not found",
       });
     }
 
     // if refresh token is invalid
     if (user.refreshToken !== refreshToken) {
-      return res
-        .status(400)
-        .json({ status: "Error", message: "Unauthorized - Invalid token" });
+      return res.status(401).json({
+        status: "Error",
+        message: "Unauthorized - Invalid refresh token",
+      });
     }
 
     // if user changed password
@@ -392,7 +495,7 @@ export const protect = async (
     const castedError = error as Error;
     if (
       castedError.name === "JsonWebTokenError" ||
-      (castedError.name === "TokenExpiredError" && refreshToken)
+      castedError.name === "TokenExpiredError"
     ) {
       try {
         // verify refreshToken
@@ -427,9 +530,10 @@ export const protect = async (
           });
         }
       } catch (error) {
-        return res
-          .status(400)
-          .json({ status: "Error", message: "Unauthorized" });
+        return res.status(401).json({
+          status: "Error",
+          message: "Unauthorized - Access token expired",
+        });
       }
     }
   }
