@@ -6,15 +6,15 @@ import TaskModel from "../models/task.model";
 
 export const addTask = async (req: CustomRequest, res: Response) => {
   // extract data from request body
-  const { title, description } = req.body;
+  const { title } = req.body;
 
   // get current user id
   const currentUserId = req.user._id;
 
-  // Check if the title or description is missing.
+  // Check if the title is missing.
   // If either is missing, return a 400 Bad Request response
   // with an error message indicating incomplete task details.
-  if (!title || !description) {
+  if (!title) {
     return res.status(400).json({
       status: "An error occured",
       message:
@@ -42,7 +42,6 @@ export const addTask = async (req: CustomRequest, res: Response) => {
     // create new task
     const newTask = await TaskModel.create({
       title,
-      description,
       completed: false,
       important: false,
       userId: currentUserId,
