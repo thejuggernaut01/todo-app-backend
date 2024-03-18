@@ -116,7 +116,7 @@ export const resendEmail = async (req: Request, res: Response) => {
       });
     }
 
-    const user = (await User.findOne({ email }));
+    const user = await User.findOne({ email });
 
     // check if user
     if (user.isVerified) {
@@ -152,9 +152,7 @@ export const login = async (req: Request, res: Response) => {
   }
 
   try {
-    const user = (await User.findOne({ email })
-      .select("+password")
-      .lean());
+    const user = await User.findOne({ email }).select("+password").lean();
 
     if (!user.isVerified) {
       return res.status(400).json({
@@ -348,7 +346,7 @@ export const protect = async (
   // check if refresh token doesn't exist
   if (!refreshToken) {
     return res.status(403).json({
-      message: "Unauthorized",
+      message: "Unauthorized - ",
     });
   }
 

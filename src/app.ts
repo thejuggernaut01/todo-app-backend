@@ -15,7 +15,7 @@ const app: Express = express();
 app.use(
   cors({
     origin: [
-      "https://ayoo-todo-app.vercel.app/",
+      "https://ayoo-todo-app.vercel.app",
       "http://localhost:3000",
       "http://localhost:3001",
     ],
