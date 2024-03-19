@@ -163,7 +163,7 @@ export const login = async (req: Request, res: Response) => {
 
     // check if password is correct
     const match = await bcrypt.compare(password, user.password);
-    if (!user || !match) {
+    if (!match) {
       return res.status(400).json({
         status: "An error occured",
         message: "Email or password is incorrect",
@@ -182,23 +182,20 @@ export const login = async (req: Request, res: Response) => {
     // update user refresh token
     await User.findOneAndUpdate({ email: user.email }, { refreshToken });
 
-    // check if in production mode
-    const isProduction = process.env.NODE_ENV === "production";
-
     // store token (access & refresh)
     res.cookie("access-token", accessToken, {
-      secure: isProduction ? true : false,
-      httpOnly: isProduction ? true : false,
+      secure: true,
+      httpOnly: true,
       path: "/",
-      sameSite: isProduction ? "none" : "lax",
+      sameSite: "none",
       maxAge: 15 * 60 * 1000, // 15 minutes
     });
 
     res.cookie("refresh-token", refreshToken, {
-      secure: isProduction ? true : false,
-      httpOnly: isProduction ? true : false,
+      secure: true,
+      httpOnly: true,
       path: "/",
-      sameSite: "lax",
+      sameSite: "none",
       maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
     });
 
@@ -419,10 +416,10 @@ export const protect = async (
 
           // store token (access & refresh)
           res.cookie("access-token", newAccessToken, {
-            secure: isProduction ? true : false,
-            httpOnly: isProduction ? true : false,
+            secure: true,
+            httpOnly: true,
             path: "/",
-            sameSite: isProduction ? "none" : "lax",
+            sameSite: "none",
             maxAge: 15 * 60 * 1000, // 15 minutes
           });
         }

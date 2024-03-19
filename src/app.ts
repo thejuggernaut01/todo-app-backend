@@ -23,10 +23,10 @@ app.use(
   })
 );
 
-// Parse JSON bodies
-app.use(express.json());
 // Cookie parser middleware for parsing cookies sent by the client
 app.use(cookieParser());
+// Parse JSON bodies
+app.use(express.json());
 // Parse URL-encoded bodies
 app.use(express.urlencoded({ extended: true }));
 // Compress responses
