@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 
 import { CustomRequest } from "../common/interfaces/authInterface";
 import TaskModel from "../models/task.model";
+import { isValidObjectId } from "mongoose";
 
 export const addTask = async (req: CustomRequest, res: Response) => {
   // extract data from request body
@@ -88,26 +89,33 @@ export const getAllTask = async (req: CustomRequest, res: Response) => {
 export const updateTask = async (req: CustomRequest, res: Response) => {
   // extract taskId from request params
   const { taskId } = req.params;
+
   // extract updated fields from request body
   const { completed, important } = req.body;
+
   // get current user id
   const currentUserId = req.user?._id;
-
   try {
     const updatedTask = await TaskModel.findOneAndUpdate(
-      { _id: new mongoose.Types.ObjectId(taskId), userId: currentUserId },
+      { _id: taskId, userId: currentUserId },
       { completed, important },
       { returnOriginal: false }
     ).lean();
+
+    if (!updatedTask) {
+      // If no task was found with the given ID and user ID, return a 404 error
+      return res.status(404).json({ message: "Task not found" });
+    }
 
     const { userId, ...task } = updatedTask;
 
     return res
       .status(200)
-      .json({ message: "Task completed status updated", task });
+      .json({ message: "Task status updated successfully", task });
   } catch (error) {
     const castedError = error as Error;
     const { stack: _, ...rest } = castedError;
+
     console.log(error);
 
     return res.status(500).json({
