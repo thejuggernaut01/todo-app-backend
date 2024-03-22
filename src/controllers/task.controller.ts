@@ -111,7 +111,7 @@ export const updateTask = async (req: CustomRequest, res: Response) => {
 
     return res
       .status(200)
-      .json({ message: "Task status updated successfully", task });
+      .json({ message: "Task status updated successfully", data: task });
   } catch (error) {
     const castedError = error as Error;
     const { stack: _, ...rest } = castedError;

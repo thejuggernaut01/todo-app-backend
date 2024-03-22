@@ -8,8 +8,3 @@ export const addTaskSchema = z.object({
   //   .string()
   //   .min(2, { message: "Title must be at least 2 characters long" }),
 });
-
-export const updateTaskSchema = z.object({
-  completed: z.boolean(),
-  important: z.boolean(),
-});
