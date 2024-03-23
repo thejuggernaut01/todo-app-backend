@@ -3,7 +3,6 @@ import mongoose from "mongoose";
 
 import { CustomRequest } from "../common/interfaces/authInterface";
 import TaskModel from "../models/task.model";
-import { isValidObjectId } from "mongoose";
 
 export const addTask = async (req: CustomRequest, res: Response) => {
   // extract data from request body
