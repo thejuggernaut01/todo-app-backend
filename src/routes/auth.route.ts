@@ -34,9 +34,5 @@ router.patch(
 
 router.post("/login", validate(loginSchema), login);
 router.post("/logout", logout);
-router.use(protect);
 
-router.get("/test", (req, res) => {
-  res.send("Authentication route!");
-});
 export default router;

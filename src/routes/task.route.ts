@@ -3,7 +3,8 @@ import {
   deleteTask,
   addTask,
   getAllTask,
-  updateTask,
+  updateTaskStatus,
+  editTask,
 } from "../controllers/task.controller";
 import validate from "../common/schemas/validate";
 import { addTaskSchema } from "../common/schemas/taskSchema";
@@ -14,7 +15,9 @@ router.get("/tasks", getAllTask);
 
 router.post("/task", validate(addTaskSchema), addTask);
 
-router.patch("/task/:taskId", updateTask);
+router.patch("/task/:taskId/edit", editTask);
+
+router.patch("/task/:taskId", updateTaskStatus);
 // router.patch("/task/:taskId", validate(updateTaskSchema), updateTask);
 
 router.delete("/task/:taskId", deleteTask);

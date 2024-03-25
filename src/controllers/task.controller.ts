@@ -4,9 +4,33 @@ import mongoose from "mongoose";
 import { CustomRequest } from "../common/interfaces/authInterface";
 import TaskModel from "../models/task.model";
 
+export const getAllTask = async (req: CustomRequest, res: Response) => {
+  try {
+    // get current user id
+    const currentUserId = req.user?._id;
+
+    // find task by user id
+    const tasks = await TaskModel.find({ userId: currentUserId });
+
+    return res.status(200).json({
+      status: "Success",
+      data: tasks,
+    });
+  } catch (error) {
+    const castedError = error as Error;
+    const { stack: _, ...rest } = castedError;
+
+    return res.status(500).json({
+      status: "Error",
+      message: "An error occured!",
+      error: rest,
+    });
+  }
+};
+
 export const addTask = async (req: CustomRequest, res: Response) => {
   // extract data from request body
-  const { title } = req.body;
+  const { title, description } = req.body;
 
   // get current user id
   const currentUserId = req.user._id;
@@ -14,7 +38,7 @@ export const addTask = async (req: CustomRequest, res: Response) => {
   // Check if the title is missing.
   // If either is missing, return a 400 Bad Request response
   // with an error message indicating incomplete task details.
-  if (!title) {
+  if (!title || !description) {
     return res.status(400).json({
       status: "An error occured",
       message:
@@ -42,6 +66,7 @@ export const addTask = async (req: CustomRequest, res: Response) => {
     // create new task
     const newTask = await TaskModel.create({
       title,
+      description,
       completed: false,
       important: false,
       userId: currentUserId,
@@ -52,8 +77,6 @@ export const addTask = async (req: CustomRequest, res: Response) => {
       data: newTask,
     });
   } catch (error) {
-    console.log(error);
-
     return res.status(500).json({
       status: "Error",
       message: "Internal server error",
@@ -61,21 +84,30 @@ export const addTask = async (req: CustomRequest, res: Response) => {
   }
 };
 
-export const getAllTask = async (req: CustomRequest, res: Response) => {
+export const editTask = async (req: CustomRequest, res: Response) => {
+  // extract taskId from request params and body
+  const { taskId } = req.params;
+  const { title, description } = req.body;
+
+  // get current user id
+  const currentUserId = req.user?._id;
   try {
-    // get current user id
-    const currentUserId = req.user?._id;
+    const editedTask = await TaskModel.findOneAndUpdate(
+      { _id: taskId, userId: currentUserId },
+      { title, description },
+      { returnOriginal: false }
+    ).lean();
 
-    // find task by user id
-    const tasks = await TaskModel.find({ userId: currentUserId });
+    const { userId, ...task } = editedTask;
 
-    return res.status(200).json({
-      status: "Success",
-      data: tasks,
-    });
+    return res
+      .status(200)
+      .json({ message: "Task updated successfully", data: task });
   } catch (error) {
     const castedError = error as Error;
     const { stack: _, ...rest } = castedError;
+
+    console.log(error);
 
     return res.status(500).json({
       status: "Error",
@@ -85,7 +117,7 @@ export const getAllTask = async (req: CustomRequest, res: Response) => {
   }
 };
 
-export const updateTask = async (req: CustomRequest, res: Response) => {
+export const updateTaskStatus = async (req: CustomRequest, res: Response) => {
   // extract taskId from request params
   const { taskId } = req.params;
 
@@ -148,6 +180,7 @@ export const deleteTask = async (req: CustomRequest, res: Response) => {
 
     return res.status(200).json({
       status: "Success",
+      message: "Task deleted successfully",
       deletedTask,
     });
   } catch (error) {
